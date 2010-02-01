@@ -1,0 +1,5 @@
+de:
+  navigation_tags:
+    include_in_navigation: 'Im Menu'
+    "yes": 'Ja'
+    "no": 'Nein'

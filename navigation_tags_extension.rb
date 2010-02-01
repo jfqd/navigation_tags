@@ -12,10 +12,10 @@ class NavigationTagsExtension < Radiant::Extension
   
   def activate
     Page.send :include, NavigationTags
+    admin.pages.edit.add :layout_row, "admin/pages/navigation"
   end
   
   def deactivate
-    # admin.tabs.remove "Navigation Tags"
   end
   
 end

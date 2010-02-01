@@ -1,0 +1,5 @@
+en:
+  navigation_tags:
+    include_in_navigation: 'In navigation'
+    "yes": 'Yes'
+    "no": 'No'
