@@ -1,0 +1,13 @@
+- form_for [:admin, @navigation], :html => {:onsubmit_status => onsubmit_status(@navigation)}, :html => { :enctype => 'multipart/form-data' } do |navigation_form|
+
+  .form_area
+    %p.title
+      = navigation_form.label :name, 'Name'
+      = navigation_form.text_field :name, :class => 'textbox activate', :maxlength => 255
+  
+  .form_bottom
+    %p.buttons{:style => 'clear:left'}
+      = save_model_button(@navigation)
+      = save_model_and_continue_editing_button(@navigation_type)
+      or
+      = link_to "Cancel", admin_navigations_url

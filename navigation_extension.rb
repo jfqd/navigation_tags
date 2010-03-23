@@ -1,10 +1,10 @@
 # Uncomment this if you reference any of your controllers in activate
 # require_dependency 'application'
 
-class NavigationTagsExtension < Radiant::Extension
+class NavigationExtension < Radiant::Extension
   version "2.0"
   description "Makes building navigations much easier."
-  url "http://yourwebsite.com/navigation_tags"
+  url "http://github.com/squaretalent/radiant-navigation-extension"
   
   # define_routes do |map|
   #   map.connect 'admin/navigation_tags/:action', :controller => 'admin/navigation_tags'
@@ -12,18 +12,17 @@ class NavigationTagsExtension < Radiant::Extension
   
   define_routes do |map|
     map.namespace :admin, :member => { :remove => :get } do |admin|
-      admin.resources :navigation_types
+      admin.resources :navigations, :as => :navigation
     end
   end
   
   def activate
     Page.send :include, NavigationTags
-    admin.tabs.add "Navigation Type", "/admin/navigation_types", :after => "Layouts", :visibility => [:all]
-    admin.page.edit.add :parts_bottom, "navigationType", :after  => 'edit_layout_and_type'
-  end
-  
-  def deactivate
-    # admin.tabs.remove "Navigation Tags"
+    admin.page.edit.add :parts_bottom, "navigation", :after  => 'edit_layout_and_type'
+    
+    tab 'Design' do
+      add_item 'Navigation', "/admin/navigation", :after => 'Snippets'
+    end
   end
   
 end

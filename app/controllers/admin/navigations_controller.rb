@@ -1,4 +1,4 @@
-class Admin::NavigationTypesController < Admin::ResourceController
+class Admin::NavigationsController < Admin::ResourceController
 
   only_allow_access_to :index, :new, :edit, :remove,
     :when => [:developer, :admin],
