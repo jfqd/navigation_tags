@@ -12,7 +12,7 @@ module NavigationTags
     [only="^/(articles|notices)"] [except="\.(css|js|xml)/*$"] /></code></pre> 
     *Attributes:*
     
-    * @root@ defaults to "/", where to start building the navigation from, you can i.e. use "/products" to build a subnav
+    * @root@ defaults to "current page url", where to start building the navigation from, you can i.e. use "/" to build a primary nav
     * @include_root@ defaults to false, set to true to include the root page (i.e. Home)
     * @ids_for_lis@ defaults to false, enable this to give each li an id (it's slug prefixed with nav_)
     * @ids_for_links@ defaults to false, enable this to give each link an id (it's slug prefixed with nav_)
@@ -27,7 +27,7 @@ module NavigationTags
   }
     
   tag "nav" do |tag|
-    root = Page.find_by_url(root_url = tag.attr.delete('root') || "/")
+    root = Page.find_by_url(root_url = tag.attr.delete('root') || tag.locals.page.url)
     
     raise NavTagError, "No page found at \"#{root_url}\" to build navigation from." if root.class_name.eql?('FileNotFoundPage')
     
