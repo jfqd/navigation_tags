@@ -21,7 +21,7 @@ module NavigationTags
   }
 
   tag "nav" do |tag|
-    root_url = tag.attr.delete('root') || "/" + I18n.locale
+    root_url = tag.attr.delete('root') || "/"
     root_url = root_url.to_s
     root = Page.find_by_url(root_url)
 
@@ -42,17 +42,8 @@ module NavigationTags
       tree = ""
     end
 
-    navigationtype = tag.attr.delete('navigationtype')
-    if navigationtype
-      for child in root.children
-        if checknavigationtype(child, NavigationType.find_by_name(navigationtype).id)
-          tree << tag.render('sub-nav', {:page => child, :depth => depth.to_i - 1 })
-        end
-      end
-    else
-      for child in root.children
-        tree << tag.render('sub-nav', {:page => child, :depth => depth.to_i - 1 })
-      end
+    for child in root.children
+      tree << tag.render('sub-nav', {:page => child, :depth => depth.to_i - 1 })
     end
 
     if tag.attr
@@ -136,16 +127,6 @@ module NavigationTags
     Page.benchmark "BENCHMARK: #{tag.attr['name']}"do
       tag.expand
     end
-  end
-
-  def checknavigationtype(page, id)
-    if page.navigationTypeId == id
-        return true
-    end
-    if page.parent == nil
-          return false;
-    end
-    return checknavigationtype(page.parent, id)
   end
 
 end

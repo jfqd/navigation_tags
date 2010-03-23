@@ -37,6 +37,10 @@ Provides hierarchical tree navigation based on Radiant's site structure. Outputs
   * expand_all: 	defaults to false, 			enable this to have all li's create sub-ul's of their children, i.o. only the currently active li
   * id, class, monkeyballs, ... 	        will be used as html attributes for the ul
 
+= NOTES
+
+* This does not behave like the original extension and has been made to simply support calling the tag
+
 = CREDITS
 
 * Ryan Heneise
