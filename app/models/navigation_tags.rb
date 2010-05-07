@@ -4,29 +4,37 @@ module NavigationTags
   
   class NavTagError < StandardError; end
   
-  desc %{Render a navigation menu. Walks down the directory tree, expanding the tree up to the current page.
-
+  desc %{
+    Render a navigation menu. Walks down the directory tree, expanding the tree up to the current page.
+    
     *Usage:*
-    <pre><code><r:nav [id="subnav"] [root=\"/products\"] [include_root=\"true\"] [depth=\"2\"] [expand_all=\"true\"]/></code></pre> 
+    <pre><code><r:nav [id="subnav"] [root="/products"] [include_root="true"] [depth="2"] [expand_all="true"]
+    [only="^/(articles|notices)"] [except="\.(css|js|xml)/*$"] /></code></pre> 
     *Attributes:*
     
-    root: defaults to "/", where to start building the navigation from, you can i.e. use "/products" to build a subnav
-    include_root: defaults to false, set to true to include the root page (i.e. Home)
-    ids_for_lis: defaults to false, enable this to give each li an id (it's slug prefixed with nav_)
-    ids_for_links: defaults to false, enable this to give each link an id (it's slug prefixed with nav_)
+    * @root@ defaults to "root page", where to start building the navigation from, you can i.e. use "sexy-dresses" to build a nav under sexy dresses
+    * @include_root@ defaults to false, set to true to include the root page (i.e. Home)
+    * @ids_for_lis@ defaults to false, enable this to give each li an id (it's slug prefixed with nav_)
+    * @ids_for_links@ defaults to false, enable this to give each link an id (it's slug prefixed with nav_)
     
-    depth: defaults to 1, which means no sub-ul's, set to 2 or more for a nested list
-    expand_all: defaults to false, enable this to have all li's create sub-ul's of their children, i.o. only the currently active li
-    id, class,..: go as html attributes of the outer ul
+    * @depth@ defaults to 1, which means no sub-ul's, set to 2 or more for a nested list
+    * @expand_all@ defaults to false, enable this to have all li's create sub-ul's of their children, i.o. only the currently active li
+    
+    * @only@ a string or regular expresssion. only pages whose urls match this are included
+    * @except@ a string or regular expresssion. pages whose urls match this are not shown. except will override only. use to eliminate non-content file-types
+    
+    * @id@, @class@,..: go as html attributes of the outer ul
   }
     
-  tag "nav" do |tag|
-    root = Page.find_by_url(root_url = tag.attr.delete('root') || "/")
+  tag "nav" do |tag|    
+    root_url = tag.attr.delete('root') || "/"
+    root_url = root_url.to_s
+    root = Page.find_by_url(root_url)
     
     raise NavTagError, "No page found at \"#{root_url}\" to build navigation from." if root.class_name.eql?('FileNotFoundPage')
     
     depth = tag.attr.delete('depth') || 1
-    ['include_root', 'ids_for_lis', 'ids_for_links', 'expand_all', 'first_set'].each do |prop|
+    ['include_root', 'ids_for_lis', 'ids_for_links', 'expand_all', 'first_set', 'only', 'except'].each do |prop|
       eval "@#{prop} = tag.attr.delete('#{prop}') || false"
     end
     
@@ -61,7 +69,6 @@ module NavigationTags
     current_page = tag.locals.page
     child_page = tag.attr[:page]
     depth = tag.attr[:depth]
-    return if child_page.part("no-map") or !child_page.in_navigation? or child_page.virtual? or !child_page.published? or child_page.class_name.eql? "FileNotFoundPage"
     css_class = [("current" if current_page == child_page), ("has_children" if child_page.children.size > 0), ("parent_of_current" if current_page.url.starts_with?(child_page.url) and current_page != child_page)].compact
     if !@first_set
       css_class << 'first'
@@ -70,8 +77,10 @@ module NavigationTags
     url = (defined?(SiteLanguage)  && SiteLanguage.count > 0) ? "/#{Locale.language.code}#{child_page.url}" : child_page.url
     r = %{\t<li#{" class=\"#{css_class.join(" ")}\"" unless css_class.empty?}#{" id=\"nav_" + child_page.slug + "\"" if @ids_for_lis}>
     <a href="#{url}"#{" id=\"link_" + (child_page.slug == "/" ? 'home' : child_page.slug) + "\"" if @ids_for_links}>#{escape_once(child_page.breadcrumb)}</a>}
-    published_children = child_page.children.delete_if{|c| c.part("no-map") || !c.published? || !c.in_navigation?}
-    if published_children.size > 0 and depth.to_i > 0 and 
+    
+    allowed_children = child_page.children.delete_if{|c| not_allowed? c }
+    
+    if allowed_children.size > 0 and depth.to_i > 0 and 
         child_page.class_name != 'ArchivePage' and 
         (@expand_all || current_page.url.starts_with?(child_page.url) )
       r << "<ul>\n"
@@ -81,6 +90,13 @@ module NavigationTags
       r << "</ul>\n"
     end
     r << "</li>\n"
+  end
+  
+  
+  def not_allowed? child_page
+    (@only and !child_page.url.match(@only)) or
+    (@except and child_page.url.match(@except)) or
+    child_page.part("no-map") or child_page.virtual? or !child_page.published? or child_page.class_name.eql? "FileNotFoundPage"    
   end
   
   
