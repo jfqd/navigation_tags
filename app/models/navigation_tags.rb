@@ -48,7 +48,8 @@ module NavigationTags
       tree = ""
     end
     
-    for child in root.children
+    allowed_children = root.children.delete_if{|c| not_allowed? c }
+    for child in allowed_children
       tree << tag.render('sub-nav', {:page => child, :depth => depth.to_i - 1 })
     end
     
@@ -96,6 +97,7 @@ module NavigationTags
   def not_allowed? child_page
     (@only and !child_page.url.match(@only)) or
     (@except and child_page.url.match(@except)) or
+    !child_page.in_navigation or
     child_page.part("no-map") or child_page.virtual? or !child_page.published? or child_page.class_name.eql? "FileNotFoundPage"    
   end
   
