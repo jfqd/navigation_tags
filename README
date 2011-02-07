@@ -2,6 +2,16 @@
 
 Provides hierarchical tree navigation based on Radiant's site structure. Outputs navigation in the form of a -very flexible and CSS'able- unordered list. Also provides r:if_self and r:if_ancestor_or_self
 
+== Installation
+
+If you want to use this fork run:
+
+git clone git://github.com/jfqd/navigation_tags.git vendor/extensions/navigation_tags
+rake production radiant:extensions:navigation_tags:migrate
+rake production radiant:extensions:navigation_tags:update
+
+The original repository could be found here: https://github.com/dirkkelly/radiant-navigation-extension
+
 == Usage
 
   <r:nav [root="/"] [include_root="true"] [depth="2"] [expand_all="true"] [ids_for_lis="true"] />
